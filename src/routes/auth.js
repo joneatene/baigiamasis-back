@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken");
 const { mysqlConfig, jwtSecret } = require("../config");
 
 router.post("/register", async (req, res) => {
-  if (!req.body.email || !req.body.password) {
+  if (!req.body.email || !req.body.password || !req.body.fullname) {
     return res.status(400).send({ error: "Bad data provided" });
   }
 
@@ -33,19 +33,19 @@ router.post("/register", async (req, res) => {
     const con = await mysql.createConnection(mysqlConfig);
 
     const [emailCheck] = await con.execute(
-      `SELECT * FROM users WHERE email='${req.body.email}'`
+      `SELECT email FROM users WHERE email='${req.body.email}'`
     );
 
-    if (emailCheck.affectedRows !== 0) {
-      return res
-        .status(400)
-        .send({ error: "An account with this email already exists" });
+    if (emailCheck.length !== 0) {
+      return res.status(400).send({
+        error: "An account with this email already exists",
+      });
     }
 
     const [data] = await con.execute(
-      `INSERT INTO users (email, password) VALUES (${mysql.escape(
-        req.body.email
-      )}, '${hashedPassword}')`
+      `INSERT INTO users (fullname, email, password) VALUES (${mysql.escape(
+        req.body.fullname
+      )}, ${mysql.escape(req.body.email)}, '${hashedPassword}')`
     );
     con.end();
 
@@ -87,9 +87,9 @@ router.post("/login", async (req, res) => {
     const con = await mysql.createConnection(mysqlConfig);
 
     const [data] = await con.execute(
-      `SELECT id, email, password FROM users WHERE email = ${mysql.escape(
+      `SELECT id, fullname, email, password FROM users WHERE email = '${mysql.escape(
         req.body.email
-      )}`
+      )}'`
     );
     con.end();
 
