@@ -87,9 +87,9 @@ router.post("/login", async (req, res) => {
     const con = await mysql.createConnection(mysqlConfig);
 
     const [data] = await con.execute(
-      `SELECT id, fullname, email, password FROM users WHERE email = '${mysql.escape(
+      `SELECT id, fullname, email, password FROM users WHERE email=${mysql.escape(
         req.body.email
-      )}'`
+      )}`
     );
     con.end();
 
