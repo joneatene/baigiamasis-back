@@ -63,8 +63,55 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.get("/login", (req, res) => {
-  res.send("This is login");
+router.post("/login", async (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send({ error: "Bad data provided" });
+  }
+
+  const schema = Joi.object({
+    email: Joi.string().email().min(3).max(255),
+    password: Joi.string().min(8).max(255),
+  });
+
+  try {
+    const value = await schema.validateAsync({
+      email: req.body.email,
+      password: req.body.password,
+    });
+  } catch (err) {
+    return res.status(400).send({ error: "Bad data provided" });
+  }
+
+  try {
+    const con = await mysql.createConnection(mysqlConfig);
+
+    const [data] = await con.execute(
+      `SELECT id, email, password FROM users WHERE email = ${mysql.escape(
+        req.body.email
+      )}`
+    );
+    con.end();
+
+    if (data.length !== 1) {
+      return res.status(400).send({ error: "Email or password is incorrect" });
+    }
+
+    const passwordValidity = bcrypt.compareSync(
+      req.body.password,
+      data[0].password
+    );
+
+    if (!passwordValidity) {
+      return res.status(400).send({ error: "Email or password is incorrect" });
+    }
+
+    return res.send({ status: "User logged in" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ error: "Database error. Please try again later" });
+  }
 });
 
 module.exports = router;
