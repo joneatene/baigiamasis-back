@@ -4,8 +4,9 @@ const mysql = require("mysql2/promise");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const Joi = require("joi");
+const jwt = require("jsonwebtoken");
 
-const { mysqlConfig } = require("../config");
+const { mysqlConfig, jwtSecret } = require("../config");
 
 router.post("/register", async (req, res) => {
   if (!req.body.email || !req.body.password) {
@@ -105,7 +106,16 @@ router.post("/login", async (req, res) => {
       return res.status(400).send({ error: "Email or password is incorrect" });
     }
 
-    return res.send({ status: "User logged in" });
+    const token = jwt.sign(
+      {
+        id: data[0].id,
+        email: data[0].email,
+      },
+      jwtSecret,
+      { expiresIn: 60 * 60 }
+    );
+
+    return res.send({ status: "User logged in", token });
   } catch (err) {
     console.log(err);
     return res

@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 module.exports = {
+  jwtSecret: process.env.JWT_SECRET,
   mysqlConfig: {
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
