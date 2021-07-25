@@ -9,6 +9,28 @@ router.get("/userinfo", isLoggedIn, (req, res) => {
   res.send("hello", req.userData);
 });
 
+router.get("/content", isLoggedIn, async (req, res) => {
+  try {
+    const con = await mysql.createConnection(mysqlConfig);
+
+    const [data] = await con.execute(
+      `SELECT user_id, content, timestamp, users.fullname FROM posts INNER JOIN users ON users.id = posts.user_id ORDER BY timestamp DESC`
+    );
+    con.end();
+
+    if (data.length === 0) {
+      return res.send({ status: "Sorry no posts. Post something!" });
+    }
+
+    return res.send(data);
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ error: "Database error. Please try again later" });
+  }
+});
+
 router.post("/postcontent", isLoggedIn, async (req, res) => {
   if (!req.body.content || !req.body.user_id) {
     return res.status(400).send({ error: "Bad data provided" });
