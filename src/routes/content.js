@@ -14,7 +14,7 @@ router.get("/content", isLoggedIn, async (req, res) => {
     const con = await mysql.createConnection(mysqlConfig);
 
     const [data] = await con.execute(
-      `SELECT user_id, content, timestamp, users.fullname FROM posts INNER JOIN users ON users.id = posts.user_id ORDER BY timestamp DESC`
+      `SELECT posts.id AS post_id, user_id, content, timestamp, users.fullname FROM posts INNER JOIN users ON users.id = posts.user_id ORDER BY timestamp DESC`
     );
     con.end();
 
