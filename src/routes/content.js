@@ -5,8 +5,22 @@ const mysql = require("mysql2/promise");
 const { isLoggedIn } = require("../middleware");
 const { mysqlConfig } = require("../config");
 
-router.get("/userinfo", isLoggedIn, (req, res) => {
-  res.send("hello", req.userData);
+router.get("/userinfo", isLoggedIn, async (req, res) => {
+  try {
+    const con = await mysql.createConnection(mysqlConfig);
+
+    const [data] = await con.execute(
+      `SELECT id, fullname FROM users WHERE id=${req.userData.id}`
+    );
+    con.end();
+
+    res.send(data[0]);
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ error: "Database error. Please try again later" });
+  }
 });
 
 router.get("/content", isLoggedIn, async (req, res) => {
