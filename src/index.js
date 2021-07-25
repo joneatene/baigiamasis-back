@@ -6,12 +6,14 @@ app.use(express.json());
 app.use(cors());
 
 const authRoutes = require("./routes/auth.js");
+const contentRoutes = require("./routes/content.js");
 
 app.get("/", (req, res) => {
   res.send("Hello, server works.");
 });
 
 app.use("/auth", authRoutes);
+app.use("/content", contentRoutes);
 
 app.all("*", (req, res) => {
   res.send("Error 404 Page Not Found");

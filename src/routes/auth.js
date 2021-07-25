@@ -1,7 +1,6 @@
-const { Router } = require("express");
 const express = require("express");
-const mysql = require("mysql2/promise");
 const router = express.Router();
+const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
