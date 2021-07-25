@@ -10,7 +10,7 @@ router.get("/userinfo", isLoggedIn, (req, res) => {
 });
 
 router.post("/postcontent", isLoggedIn, async (req, res) => {
-  if (!req.body.content) {
+  if (!req.body.content || !req.body.user_id) {
     return res.status(400).send({ error: "Bad data provided" });
   }
 
