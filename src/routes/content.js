@@ -96,4 +96,32 @@ router.post("/postcontent", isLoggedIn, async (req, res) => {
       .send({ error: "Database error. Please try again later" });
   }
 });
+
+router.post("/delete", isLoggedIn, async (req, res) => {
+  if (!req.body.post_id) {
+    return res.status(400).send({ error: "Bad data provided" });
+  }
+
+  try {
+    const con = await mysql.createConnection(mysqlConfig);
+
+    const [result] = await con.execute(
+      `REMOVE FROM posts WHERE id = ${req.body.post_id}`
+    );
+
+    if (result.affectedRows !== 1) {
+      return res
+        .status(500)
+        .send({ error: "An unexpected error occurred. Please try again" });
+    }
+
+    return res.send({ status: "Post deleted" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ error: "Database error. Please try again later" });
+  }
+});
+
 module.exports = router;
