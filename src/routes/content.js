@@ -106,7 +106,7 @@ router.post("/delete", isLoggedIn, async (req, res) => {
     const con = await mysql.createConnection(mysqlConfig);
 
     const [result] = await con.execute(
-      `REMOVE FROM posts WHERE id = ${req.body.post_id}`
+      `DELETE FROM posts WHERE id = ${req.body.post_id}`
     );
 
     if (result.affectedRows !== 1) {
